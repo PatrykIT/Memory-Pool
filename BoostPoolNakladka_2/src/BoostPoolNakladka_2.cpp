@@ -241,7 +241,7 @@ void Free_All()
 int main(int argc, char** argv)
 {
 	clock_t start = clock();
-
+	cout << "This will be on classes." << endl;
 	//Test_1();
     Test_4();
     //Perfomance_Test();
