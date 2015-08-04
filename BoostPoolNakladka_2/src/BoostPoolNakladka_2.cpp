@@ -241,7 +241,6 @@ void Free_All()
 int main(int argc, char** argv)
 {
 	clock_t start = clock();
-	cout <<"Imhee" << endl;
 
 	//Test_1();
     Test_4();
