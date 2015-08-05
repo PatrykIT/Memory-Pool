@@ -143,7 +143,7 @@ void operator delete(void *to_erase) throw()
                 break;
             case 5 ... 8:
                 singleton_eights::free( my_info);
-                singleton_fours::free( to_erase );
+                singleton_fours::free( to_erase ); //Tu jest ŹLE!!!!
                 break;
             case 9 ... 16:
                 singleton_sixteens::free( my_info );
