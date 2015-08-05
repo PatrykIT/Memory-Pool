@@ -10,7 +10,6 @@
 #include <vector>
 
 #include <boost/pool/pool.hpp>
-#include <boost/pool/singleton_pool.hpp>
 #include <boost/pool/detail/mutex.hpp>
 #include <boost/pool/detail/guard.hpp>
 #include <boost/pool/pool_alloc.hpp>
@@ -36,91 +35,56 @@ struct default_user_allocator_new_delete
 };
 
 
-vector <unsigned short int> bytes_for_singletons {4, 8, 16, 256};
-vector<unsigned short int>::iterator singleton_choice;
 
-struct four_bytes {};
-struct eight_bytes {};
-struct sixteen_bytes {};
-struct STL_containers {};
 
-typedef boost::singleton_pool <four_bytes, 4, default_user_allocator_new_delete, boost::details::pool::default_mutex, 4, 4>          singleton_fours;
-typedef boost::singleton_pool <eight_bytes, 8, default_user_allocator_new_delete, boost::details::pool::default_mutex, 8, 8>         singleton_eights;
-typedef boost::singleton_pool <sixteen_bytes, 16, default_user_allocator_new_delete, boost::details::pool::default_mutex, 16, 16>    singleton_sixteens;
-typedef boost::singleton_pool <STL_containers, 256, default_user_allocator_new_delete, boost::details::pool::default_mutex, 256, 256>    singleton_STL;
-
-                            //<Tag,  RequestedSize,  UserAllocator,  Mutex,  NextSize,  MaxSize>
-
-/* Tag - tag has no purpose other than creating separate instances o singleton_pool. Thanks to tags, multiple singletons can manage different memory pools, even if they have the same size.
- * Requested size - number of chunks to request from the system the first time that object needs to allocate system memory. This is passed as a constructor parameter to the underlying pool.
- * Next size      - number of chunks to request from the system the next time that object needs to allocate system memory. */
+boost::pool<> pool_fours (4);
+boost::pool<> pool_eights (8);
+boost::pool<> pool_sixteens (16);
+boost::pool<> pool_STL (256);
 
 
 
+vector <unsigned short int> bytes_for_pool {4, 8, 16, 256};
+vector<unsigned short int>::iterator pool_choice;
 
-
-
-
-
-
-/*void * operator new(size_t n_bytes) throw (bad_alloc)
+int Pick_Pool(const size_t n_bytes) //This functions returns the most optimal pool to allocate\deallocate memory from.
 {
-	void *storage;
-    n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
-
-    singleton_choice = lower_bound(bytes_for_singletons.begin(), bytes_for_singletons.end(), n_bytes); //crashes on this line.
-    if(singleton_choice == bytes_for_singletons.end())
-		return NULL;
-
-
-    switch( *singleton_choice ) //Switch range. It is extension to C++. Switch might be implemented using a lookup table or a hash list. This means that all items get the same access time.
-    {
-        case 4:
-            storage = singleton_fours::malloc();
-            break;
-        case 8:
-            storage = singleton_eights::malloc(); cout << "sing eights" << endl;
-            break;
-        case 16:
-            storage = singleton_sixteens::malloc();
-            break;
-        default:
-            storage = singleton_STL::malloc();
-            break;
-    }
-    if( storage == NULL )
-        throw "memory allocation failed!";
-
-    *(unsigned short int*) storage = (unsigned short int) n_bytes; //Place information about allocated bytes in the beginning of 'storage'.
-
-    void *storage2;
-    storage2 = (unsigned short int*) storage + 1; //Compiler will construct an object one place after our information.
-
-    return storage2;
-}*/
+	pool_choice = lower_bound(bytes_for_pool.begin(), bytes_for_pool.end(), n_bytes);
+	if(pool_choice == bytes_for_pool.end())
+	    	return 256; /* it should return -1, and it should mean that there was not large enough pool to allocate memory from. Unfortunately, creating vector seems to always fail this test, and go to this line.
+	    				So this is just a workaround, untill a fix is found.*/
+	else
+	    	return *pool_choice;
+}
 
 void * operator new(size_t n_bytes) throw (bad_alloc)
 {
-    void *storage;
-    n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
+	void *storage;
+	int pool_size;
+	n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
 
-    switch(n_bytes) //Switch range. It is extension to C++. Switch might be implemented using a lookup table or a hash list. This means that all items get the same access time.
+    pool_size = Pick_Pool(n_bytes);
+    if(pool_size < 0)
+    	throw "Cannot allocate - there is no suitable memory pool for that amount of memory.\n";
+
+    switch(pool_size)
     {
-        case 0 ... 4:
-            storage = singleton_fours::malloc();
+        case 4:
+            storage = pool_fours.malloc();
             break;
-        case 5 ... 8:
-            storage = singleton_eights::malloc();
+        case 8:
+            storage = pool_eights.malloc();
             break;
-        case 9 ... 16:
-            storage = singleton_sixteens::malloc();
+        case 16:
+            storage = pool_sixteens.malloc();
             break;
         default:
-            storage = singleton_STL::malloc();
+            storage = pool_STL.malloc();
             break;
     }
+
     if( storage == NULL )
-        throw "memory allocation failed!";
+        throw "Memory allocation failed!";
 
     *(unsigned short int*) storage = (unsigned short int) n_bytes; //Place information about allocated bytes in the beginning of 'storage'.
 
@@ -133,27 +97,44 @@ void * operator new(size_t n_bytes) throw (bad_alloc)
 void operator delete(void *to_erase) throw()
 {
     void *my_info = (unsigned short int*) to_erase - 1; //Go one place back, in order to retrieve information about how many bytes were allocated by user.
+    *(unsigned short int*) my_info = Pick_Pool(*(unsigned short int*) my_info);
 
-    if (*(unsigned short int*) my_info > 0)             //If there is something to free.
-        switch ( *(unsigned short int*) my_info )
-        {
-            case 0 ... 4:
-                singleton_fours::free( my_info );
-                singleton_fours::free( to_erase );
-                break;
-            case 5 ... 8:
-                singleton_eights::free( my_info);
-                singleton_fours::free( to_erase );
-                break;
-            case 9 ... 16:
-                singleton_sixteens::free( my_info );
-                singleton_fours::free( to_erase );
-                break;
-            default:
-                singleton_STL::free( my_info );
-                singleton_fours::free( to_erase );
-                break;
-        }
+
+    if (*(unsigned short int*) my_info < 0)             //If there is nothing to free.
+    	return;
+
+    switch ( *(unsigned short int*) my_info )
+    {
+    	case 4:
+			pool_fours.free( my_info );
+           	pool_fours.free( to_erase );
+            break;
+        case 8:
+			pool_eights.free( my_info);
+            pool_eights.free( to_erase );
+            break;
+        case 16:
+			pool_sixteens.free( my_info );
+           	pool_sixteens.free( to_erase );
+           	break;
+        default:
+           	pool_STL.free( my_info );
+           	pool_STL.free( to_erase );
+            break;
+    }
+}
+
+void Test_1()
+{
+	int *i = new int (5);
+
+	void *place_2 = (void*) i - 2; //place - 2;
+	cout <<"my info: " << *(unsigned short int*)place_2 << endl;
+
+	delete i;
+
+	cout << "after free: *i " << *i << endl;
+	cout <<"my info: " << *(unsigned short int*)place_2 << endl;
 }
 
 
@@ -169,26 +150,45 @@ void Test_4()
     delete i; delete d; delete c;
 }
 
+void Perfomance_Test();
+
+
+int main(int argc, char** argv)
+{
+	clock_t start = clock();
+	//Test_1();
+    Test_4();
+    //Perfomance_Test();
+
+
+    double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
+    return 0;
+}
+
+
+
+
+
 void Perfomance_Test()
 {
 
     for (int i = 0 ; i <10000 ; ++i)
     {
         char *a = new char;
-        delete a;
+        //delete a;
     }
 
     for (int i = 0 ; i <500000 ; ++i)
     {
         int *a = new int;
-        delete a;
+        //delete a;
     }
 
 
     for (int i = 0 ; i <500000 ; ++i)
     {
         double *a = new double;
-        delete a;
+        //delete a;
     }
 
       struct large_structure {
@@ -198,42 +198,11 @@ void Perfomance_Test()
     for(int i = 0 ; i < 500000; ++i)
     {
         large_structure *x = new large_structure;
-        delete x;
+        //delete x;
     }
 
 }
 
-
-
-
-
-void Free_All();
-
-
-int main(int argc, char** argv)
-{
-	clock_t start = clock();
-
-    //Test_4();
-    //Perfomance_Test();
-
-
-    Free_All();
-    double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
-    return 0;
-}
-
-once_flag call_once_flag;
-void Free_All()
-{
-    call_once(call_once_flag, []  //Executes the Callable object  exactly once, even if called from several threads.
-    {
-        singleton_fours::purge_memory();
-        singleton_eights::purge_memory();
-        singleton_sixteens::purge_memory();
-        singleton_STL::purge_memory();
-    }        );
-}
 
 
 
