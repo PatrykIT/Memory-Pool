@@ -35,21 +35,6 @@ struct default_user_allocator_new_delete
   }
 };
 
-struct default_user_allocator_malloc_free
-{
-  typedef std::size_t size_type;
-  typedef std::ptrdiff_t difference_type;
-
-  static char * malloc(const size_type bytes)
-  {
-      return reinterpret_cast<char *>(std::malloc(bytes));
-  }
-  static void free(char * const block)
-  {
-      std::free(block);
-  }
-};
-
 
 vector <unsigned short int> bytes_for_singletons {4, 8, 16, 256};
 vector<unsigned short int>::iterator singleton_choice;
@@ -71,12 +56,19 @@ typedef boost::singleton_pool <STL_containers, 256, default_user_allocator_new_d
  * Next size      - number of chunks to request from the system the next time that object needs to allocate system memory. */
 
 
+
+
+
+
+
+
+
 /*void * operator new(size_t n_bytes) throw (bad_alloc)
 {
 	void *storage;
     n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
 
-    singleton_choice = lower_bound(bytes_for_singletons.begin(), bytes_for_singletons.end(), n_bytes);
+    singleton_choice = lower_bound(bytes_for_singletons.begin(), bytes_for_singletons.end(), n_bytes); //crashes on this line.
     if(singleton_choice == bytes_for_singletons.end())
 		return NULL;
 
@@ -165,15 +157,6 @@ void operator delete(void *to_erase) throw()
 }
 
 
-void Test_1()
-{
-    int *j = new int[6];
-    j[5] = 6;
-    cout <<"j[1] = " << j[5] << endl;
-    delete[] j;
-}
-
-
 
 void Test_4()
 {
@@ -224,6 +207,22 @@ void Perfomance_Test()
 
 
 
+void Free_All();
+
+
+int main(int argc, char** argv)
+{
+	clock_t start = clock();
+
+    //Test_4();
+    //Perfomance_Test();
+
+
+    Free_All();
+    double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
+    return 0;
+}
+
 once_flag call_once_flag;
 void Free_All()
 {
@@ -233,24 +232,9 @@ void Free_All()
         singleton_eights::purge_memory();
         singleton_sixteens::purge_memory();
         singleton_STL::purge_memory();
-
     }        );
 }
 
-
-int main(int argc, char** argv)
-{
-	clock_t start = clock();
-
-	//Test_1();
-    Test_4();
-    //Perfomance_Test();
-
-
-    //Free_All();
-    double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
-    return 0;
-}
 
 
 /*	//clock_t start; double duration; start = std::clock();
