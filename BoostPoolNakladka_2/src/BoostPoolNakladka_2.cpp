@@ -8,6 +8,8 @@
 #include <cstdio>
 #include <ctime>
 #include <vector>
+#include <algorithm>
+#include <math.h>
 
 #include <boost/pool/pool.hpp>
 #include <boost/pool/detail/mutex.hpp>
@@ -15,6 +17,11 @@
 #include <boost/pool/pool_alloc.hpp>
 
 using namespace std;
+
+void Test_1();
+void Test_4();
+void Perfomance_Test();
+
 
 
 struct default_user_allocator_new_delete
@@ -34,25 +41,15 @@ struct default_user_allocator_new_delete
   }
 };
 
-
-
-
-boost::pool<> pool_fours (4);
-boost::pool<> pool_eights (8);
-boost::pool<> pool_sixteens (16);
-boost::pool<> pool_STL (256);
-
-
-
-vector <unsigned short int> bytes_for_pool {4, 8, 16, 256};
+/*vector <unsigned short int> bytes_for_pool {4, 8, 16, 256};
 vector<unsigned short int>::iterator pool_choice;
 
 int Pick_Pool(const size_t n_bytes) //This functions returns the most optimal pool to allocate\deallocate memory from.
 {
 	pool_choice = lower_bound(bytes_for_pool.begin(), bytes_for_pool.end(), n_bytes);
 	if(pool_choice == bytes_for_pool.end())
-	    	return 256; /* it should return -1, and it should mean that there was not large enough pool to allocate memory from. Unfortunately, creating vector seems to always fail this test, and go to this line.
-	    				So this is just a workaround, untill a fix is found.*/
+	    	return 256; // it should return -1, and it should mean that there was not large enough pool to allocate memory from. Unfortunately, creating vector seems to always fail this test, and go to this line.
+	    				//So this is just a workaround, untill a fix is found.
 	else
 	    	return *pool_choice;
 }
@@ -63,14 +60,14 @@ void * operator new(size_t n_bytes) throw (bad_alloc)
 	int pool_size;
 	n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
 
-    pool_size = Pick_Pool(n_bytes);
+	pool_size = Pick_Pool(n_bytes);
     if(pool_size < 0)
     	throw "Cannot allocate - there is no suitable memory pool for that amount of memory.\n";
 
     switch(pool_size)
     {
         case 4:
-            storage = pool_fours.malloc();
+            //storage = pool_fours.malloc();
             break;
         case 8:
             storage = pool_eights.malloc();
@@ -93,6 +90,10 @@ void * operator new(size_t n_bytes) throw (bad_alloc)
 
     return storage2;
 }
+
+
+
+
 
 void operator delete(void *to_erase) throw()
 {
@@ -122,7 +123,77 @@ void operator delete(void *to_erase) throw()
            	pool_STL.free( to_erase );
             break;
     }
+}*/
+
+
+
+class My_memory_pool : public boost::pool<>
+{
+private:
+	size_t min_size_;
+public:
+
+	My_memory_pool(size_t max_size) : boost::pool<>(max_size)
+	{
+
+	};
+
+	size_t Get_Min_Size() { return min_size_;}
+	size_t Set_Min_Size(int distance)
+	{
+		this->min_size_ = distance;
+	}
+
+};
+
+vector <My_memory_pool*> my_pools_vector;
+
+void Enter_Pools()
+{
+	size_t sizes;
+	cout << "Please enter the sizes of pool you want. 0 for end." << endl;
+
+	while (sizes != 0)
+	{
+		cin >> sizes;
+		if(sizes != 0)
+			my_pools_vector.push_back(new My_memory_pool(sizes));
+	}
+
+	sort(my_pools_vector.begin(), my_pools_vector.end(), [ ] (const My_memory_pool *pool0, const My_memory_pool *pool2) { return pool0->get_requested_size() < pool2->get_requested_size(); } );
+
+
+	int distance;
+	for(vector <My_memory_pool*>::iterator pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end(); pools_iterator++ )
+	{
+			if( (pools_iterator + 1) == my_pools_vector.end())
+				break;
+
+			(*(pools_iterator + 1))->Set_Min_Size((*pools_iterator)->get_requested_size() + 1); //We are setting minimum size that pool can take. It is calculated by the distance to a smaller pool.
+	}
+
+	for(vector <My_memory_pool*>::iterator pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end(); pools_iterator++ )
+		cout <<"Minimum size: " <<  (*pools_iterator)->Get_Min_Size() << endl;
 }
+
+
+int main(int argc, char** argv)
+{
+	clock_t start = clock();
+	Enter_Pools();
+
+
+    double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
+    return 0;
+}
+
+
+
+
+
+
+
+
 
 void Test_1()
 {
@@ -149,23 +220,6 @@ void Test_4()
 
     delete i; delete d; delete c;
 }
-
-void Perfomance_Test();
-
-
-int main(int argc, char** argv)
-{
-	clock_t start = clock();
-	//Test_1();
-    Test_4();
-    //Perfomance_Test();
-
-
-    double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
-    return 0;
-}
-
-
 
 
 
