@@ -27,22 +27,6 @@ vector <My_memory_pool*>::iterator Pick_Pool(const size_t n_bytes);
 
 
 
-struct default_user_allocator_new_delete
-{
-  typedef std::size_t size_type; // An unsigned integral type that can represent the size of the largest object to be allocated.
-  typedef std::ptrdiff_t difference_type; // A signed integral type that can represent the difference of any two pointers.
-
-  static char * malloc(const size_type bytes)
-  {
-      return new (std::nothrow) char[bytes];
-  }
-
-
-  static void free(char * const block)
-  {
-      delete [] block;
-  }
-};
 
 vector <My_memory_pool*> my_pools_vector;
 vector <My_memory_pool*>::iterator pool_choice;
@@ -162,10 +146,10 @@ void Test_0()
 {
 	int *x = (int*) My_memory_pool::my_new(sizeof(int));
 	*x = 99;
-	cout << *x << endl;
+	cout <<"*x: " << *x << endl;
 
 	My_memory_pool::my_delete(x);
-	cout << "after delete: " << *x << endl;
+	cout << " *x after delete: " << *x << endl;
 }
 
 once_flag call_once_flag;
@@ -177,7 +161,7 @@ void Free_All()
     	{
     		(*pools_iterator)->purge_memory();
     	}
-    	my_pools_vector.erase( my_pools_vector.begin(), my_pools_vector.end() );
+    	my_pools_vector.clear();
     });
 }
 
