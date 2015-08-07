@@ -83,8 +83,7 @@ public:
 			return NULL;
 	  	}
 
-		void* storage = (*pool_choice)->allocate(n_bytes);
-		return storage;
+		return (*pool_choice)->allocate(n_bytes);
 	}
 
 	static void my_delete(void *to_erase) throw()
