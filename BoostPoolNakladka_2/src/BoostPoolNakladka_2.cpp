@@ -69,7 +69,7 @@ public:
 	void deallocate(void *my_info ,void *to_erase) throw()
 	{
 		this->free(my_info);
-		this->free(to_erase);
+		//this->free(to_erase); //to consult with Tomek. I have a question.
 	}
 
 	static void* my_new(size_t n_bytes) throw (bad_alloc)
@@ -159,7 +159,7 @@ void Free_All()
     	{
     		(*pools_iterator)->purge_memory();
     	}
-    	my_pools_vector.clear();
+    	my_pools_vector.clear(); //It doesn't erase memory pools objects from memory. Make shared_ptr.
     });
 }
 
