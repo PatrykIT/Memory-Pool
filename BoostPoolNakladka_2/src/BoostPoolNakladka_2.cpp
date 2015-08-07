@@ -10,6 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include <math.h>
+#include <memory>
 
 #include <boost/pool/pool.hpp>
 #include <boost/pool/detail/mutex.hpp>
@@ -66,7 +67,7 @@ public:
 
 	void* allocate(size_t n_bytes) throw (bad_alloc)
 	{
-		cout << "Wybrano pool o wielkosci: " << get_requested_size() << endl;
+		cout << "Putting object into pool size: " << get_requested_size() << endl;
 		void *storage;
 	    storage = this->malloc();
 
@@ -92,17 +93,21 @@ public:
 		n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
 		pool_choice = Pick_Pool(n_bytes);
 
-		if(pool_choice == my_pools_vector.end() )
-			    	throw "Cannot allocate - there is no suitable memory pool for that amount of memory.\n";
+		if(pool_choice == my_pools_vector.end())
+		{
+			cout << "Cannot allocate - there is no suitable memory pool for that amount of memory." << endl;
+			return NULL;
+	  	}
 
 		void* storage = (*pool_choice)->allocate(n_bytes);
 		return storage;
 	}
+
 	static void my_delete(void *to_erase) throw()
 	{
 	    void *my_info = (unsigned short int*) to_erase - 1; //Go one place back, in order to retrieve information about how many bytes were allocated by user.
 	    pool_choice = Pick_Pool(*(unsigned short int*) my_info);
-	    cout << "Bede zwalnial z: " << (*pool_choice)->get_requested_size() << endl;
+	    cout << "Freeing from the pool size: : " << (*pool_choice)->get_requested_size() << endl;
 	    (*pool_choice)->deallocate(my_info, to_erase);
 
 	}
@@ -155,7 +160,6 @@ vector <My_memory_pool*>::iterator Pick_Pool(const size_t n_bytes) //This functi
 
 void Test_0()
 {
-	//int *x =(int*) my_new(sizeof(int));
 	int *x = (int*) My_memory_pool::my_new(sizeof(int));
 	*x = 99;
 	cout << *x << endl;
@@ -190,7 +194,6 @@ int main(int argc, char** argv)
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
     return 0;
 }
-
 
 
 
