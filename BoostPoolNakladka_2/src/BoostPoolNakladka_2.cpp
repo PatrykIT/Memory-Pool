@@ -21,6 +21,8 @@ using namespace std;
 void Test_1();
 void Test_4();
 void Perfomance_Test();
+class My_memory_pool;
+vector <My_memory_pool*>::iterator Pick_Pool(const size_t n_bytes);
 
 
 
@@ -41,7 +43,8 @@ struct default_user_allocator_new_delete
   }
 };
 
-
+vector <My_memory_pool*> my_pools_vector;
+vector <My_memory_pool*>::iterator pool_choice;
 
 class My_memory_pool : public boost::pool<>
 {
@@ -55,15 +58,57 @@ public:
 	};
 
 	size_t Get_Min_Size() { return min_size_;}
+
 	void Set_Min_Size(int distance)
 	{
 		this->min_size_ = distance;
 	}
 
+	void* allocate(size_t n_bytes) throw (bad_alloc)
+	{
+		cout << "Wybrano pool o wielkosci: " << get_requested_size() << endl;
+		void *storage;
+	    storage = this->malloc();
+
+	    if( storage == NULL )
+	        throw "Memory allocation failed!";
+
+	    *(unsigned short int*) storage = (unsigned short int) n_bytes; //Place information about allocated bytes in the beginning of 'storage'.
+
+	    void *storage2;
+	    storage2 = (unsigned short int*) storage + 1; //Compiler will construct an object one place after our information.
+
+	    return storage2;
+	}
+
+	void deallocate(void *my_info ,void *to_erase) throw()
+	{
+		this->free(my_info);
+		this->free(to_erase);
+	}
+
+	static void* my_new(size_t n_bytes) throw (bad_alloc)
+	{
+		n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
+		pool_choice = Pick_Pool(n_bytes);
+
+		if(pool_choice == my_pools_vector.end() )
+			    	throw "Cannot allocate - there is no suitable memory pool for that amount of memory.\n";
+
+		void* storage = (*pool_choice)->allocate(n_bytes);
+		return storage;
+	}
+	static void my_delete(void *to_erase) throw()
+	{
+	    void *my_info = (unsigned short int*) to_erase - 1; //Go one place back, in order to retrieve information about how many bytes were allocated by user.
+	    pool_choice = Pick_Pool(*(unsigned short int*) my_info);
+	    cout << "Bede zwalnial z: " << (*pool_choice)->get_requested_size() << endl;
+	    (*pool_choice)->deallocate(my_info, to_erase);
+
+	}
 };
 
-vector <My_memory_pool*> my_pools_vector;
-vector <My_memory_pool*>::iterator pool_choice;
+
 
 void Enter_Pools()
 {
@@ -80,93 +125,56 @@ void Enter_Pools()
 	sort(my_pools_vector.begin(), my_pools_vector.end(), [ ] (const My_memory_pool *pool0, const My_memory_pool *pool2) { return pool0->get_requested_size() < pool2->get_requested_size(); } ); // Sort pools by size.
 
 //-------------------------------------------------------Set minimum size--------------------------------------------------------
-	for(vector <My_memory_pool*>::iterator pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end(); pools_iterator++ )
-	{
-			if( (pools_iterator + 1) == my_pools_vector.end())
-				break;
 
-			(*(pools_iterator + 1))->Set_Min_Size((*pools_iterator)->get_requested_size() + 1); //We are setting minimum size that pool can take. It is calculated by the distance to a smaller pool.
-	}
-
-	for(vector <My_memory_pool*>::iterator pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end(); pools_iterator++ )
-		cout <<"Minimum size: " <<  (*pools_iterator)->Get_Min_Size() << endl;
+	for(vector <My_memory_pool*>::iterator pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end() - 1; pools_iterator++ ) // end()-1 so we do not jump out of bound.
+		(*(pools_iterator + 1))->Set_Min_Size((*pools_iterator)->get_requested_size() + 1); //We are setting minimum size that pool can take. It is calculated by the distance to a smaller pool.
 }
 
 
-struct More
+
+
+struct compare
 {
 	bool operator() (const My_memory_pool *left, unsigned int value)
 	{
 		return left->get_requested_size() < value;
 	}
-	bool operator() (unsigned int value, const My_memory_pool *right)
-	{
-		return value < right->get_requested_size();
-	}
-
-
 };
 vector <My_memory_pool*>::iterator Pick_Pool(const size_t n_bytes) //This functions returns the most optimal pool to allocate\deallocate memory from.
 {
-	pool_choice = lower_bound(my_pools_vector.begin(), my_pools_vector.end(), n_bytes, More() );
+	pool_choice = lower_bound(my_pools_vector.begin(), my_pools_vector.end(), n_bytes, compare() );
 	if(pool_choice == my_pools_vector.end())
 	    	return my_pools_vector.end(); // it should return my_pools_vector.end(), and it should mean that there was not large enough pool to allocate memory from.
 	    	 	 	 	 	 	 	 	 	  //Unfortunately, creating vector seems to always fail this test, and go to this line. So this is just a workaround, untill a fix is found.
 	else
 	   	return pool_choice;
 }
-void* my_new(size_t n_bytes) throw (bad_alloc)
-{
-	void *storage;
-	n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
 
-    pool_choice = Pick_Pool(n_bytes);
-    cout << "Wybrano: " << (*pool_choice)->get_requested_size() << endl;
 
-    if(pool_choice == my_pools_vector.end() )
-    	throw "Cannot allocate - there is no suitable memory pool for that amount of memory.\n";
 
-    storage = (*pool_choice)->malloc();
-
-    if( storage == NULL )
-        throw "Memory allocation failed!";
-
-    *(unsigned short int*) storage = (unsigned short int) n_bytes; //Place information about allocated bytes in the beginning of 'storage'.
-
-    void *storage2;
-    storage2 = (unsigned short int*) storage + 1; //Compiler will construct an object one place after our information.
-
-    return storage2;
-}
-
-/*void * operator new(size_t n_bytes) throw (bad_alloc)
-{
-		void *storage;
-		n_bytes = n_bytes + sizeof(unsigned short int); //Place for my own information, which tells how many bytes were allocated by user.
-
-	    pool_choice = Pick_Pool(n_bytes);
-	    //cout << "Wybrano: " << (*pool_choice)->get_requested_size() << endl;
-	    if(pool_choice == my_pools_vector.end() )
-	    	throw "Cannot allocate - there is no suitable memory pool for that amount of memory.\n";
-
-	    storage = (*pool_choice)->malloc();
-
-	    if( storage == NULL )
-	        throw "Memory allocation failed!";
-
-	    *(unsigned short int*) storage = (unsigned short int) n_bytes; //Place information about allocated bytes in the beginning of 'storage'.
-
-	    void *storage2;
-	    storage2 = (unsigned short int*) storage + 1; //Compiler will construct an object one place after our information.
-
-	    return storage2;
-}*/
 
 void Test_0()
 {
-	int *x =(int*) my_new(sizeof(int));
-	char *a =(char*) my_new(sizeof(char));
+	//int *x =(int*) my_new(sizeof(int));
+	int *x = (int*) My_memory_pool::my_new(sizeof(int));
+	*x = 99;
+	cout << *x << endl;
 
+	My_memory_pool::my_delete(x);
+	cout << "after delete: " << *x << endl;
+}
+
+once_flag call_once_flag;
+void Free_All()
+{
+    call_once(call_once_flag, []  //Executes the Callable object  exactly once, even if called from several threads.
+    {
+    	for(vector <My_memory_pool*>::iterator pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end() ; pools_iterator++ ) // end()-1 so we do not jump out of bound.
+    	{
+    		(*pools_iterator)->purge_memory();
+    	}
+    	my_pools_vector.erase( my_pools_vector.begin(), my_pools_vector.end() );
+    });
 }
 
 int main(int argc, char** argv)
@@ -175,6 +183,10 @@ int main(int argc, char** argv)
 	Enter_Pools();
 	Test_0();
 
+
+
+
+	Free_All();
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
     return 0;
 }
