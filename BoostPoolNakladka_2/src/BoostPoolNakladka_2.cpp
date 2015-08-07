@@ -133,8 +133,7 @@ vector <My_memory_pool*>::iterator Pick_Pool(const size_t n_bytes) //This functi
 {
 	pool_choice = lower_bound(my_pools_vector.begin(), my_pools_vector.end(), n_bytes, compare() );
 	if(pool_choice == my_pools_vector.end())
-	    	return my_pools_vector.end(); // it should return my_pools_vector.end(), and it should mean that there was not large enough pool to allocate memory from.
-	    	 	 	 	 	 	 	 	 	  //Unfortunately, creating vector seems to always fail this test, and go to this line. So this is just a workaround, untill a fix is found.
+	    	return my_pools_vector.end();
 	else
 	   	return pool_choice;
 }
