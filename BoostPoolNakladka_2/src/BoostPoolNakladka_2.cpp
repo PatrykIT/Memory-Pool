@@ -35,20 +35,6 @@ class My_memory_pool : public boost::pool<>
 {
 private:
 	size_t min_size_ = 1;
-public:
-
-	My_memory_pool(size_t max_size) : boost::pool<>(max_size)
-	{
-
-	};
-
-	size_t Get_Min_Size() { return min_size_;}
-
-	void Set_Min_Size(int distance)
-	{
-		this->min_size_ = distance;
-	}
-
 	void* allocate(size_t n_bytes) throw (bad_alloc)
 	{
 		cout << "Putting object into pool size: " << get_requested_size() << endl;
@@ -71,6 +57,23 @@ public:
 		this->free(my_info);
 		//this->free(to_erase); //to consult with Tomek. I have a question.
 	}
+
+
+public:
+
+	My_memory_pool(size_t max_size) : boost::pool<>(max_size)
+	{
+
+	};
+
+	size_t Get_Min_Size() { return min_size_;}
+
+	void Set_Min_Size(int distance)
+	{
+		this->min_size_ = distance;
+	}
+
+
 
 	static void* my_new(size_t n_bytes) throw (bad_alloc)
 	{
@@ -100,7 +103,7 @@ public:
 
 void Enter_Pools()
 {
-	size_t sizes;
+	size_t sizes = 1; //so valgrind doesn't say jump depends on unitialized values.
 	cout << "Please enter the sizes of pool you want. 0 for end." << endl;
 
 	while (sizes != 0)
@@ -114,7 +117,7 @@ void Enter_Pools()
 
 //-------------------------------------------------------Set minimum size--------------------------------------------------------
 
-	for(vector <My_memory_pool*>::iterator pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end() - 1; pools_iterator++ ) // end()-1 so we do not jump out of bound.
+	for(auto pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end() - 1; pools_iterator++ ) // end()-1 so we do not jump out of bound.
 		(*(pools_iterator + 1))->Set_Min_Size((*pools_iterator)->get_requested_size() + 1); //We are setting minimum size that pool can take. It is calculated by the distance to a smaller pool.
 }
 
@@ -153,13 +156,11 @@ void Test_0()
 once_flag call_once_flag;
 void Free_All()
 {
-    call_once(call_once_flag, []  //Executes the Callable object  exactly once, even if called from several threads.
+	call_once(call_once_flag, []  //Executes the Callable object  exactly once, even if called from several threads.
     {
-    	for(vector <My_memory_pool*>::iterator pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end() ; pools_iterator++ ) // end()-1 so we do not jump out of bound.
-    	{
-    		(*pools_iterator)->purge_memory();
-    	}
-    	my_pools_vector.clear(); //It doesn't erase memory pools objects from memory. Make shared_ptr.
+    	for(auto pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end() ; pools_iterator++ )
+    	    delete(*pools_iterator);
+
     });
 }
 
@@ -176,7 +177,6 @@ int main(int argc, char** argv)
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
     return 0;
 }
-
 
 
 
