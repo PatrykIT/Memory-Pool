@@ -23,13 +23,14 @@ void Test_1();
 void Test_4();
 void Perfomance_Test();
 class My_memory_pool;
-vector <My_memory_pool*>::iterator Pick_Pool(const size_t n_bytes);
+vector <boost::shared_ptr<My_memory_pool>>::iterator Pick_Pool(const size_t n_bytes);
 
 
 
 
-vector <My_memory_pool*> my_pools_vector;
-vector <My_memory_pool*>::iterator pool_choice;
+vector <boost::shared_ptr<My_memory_pool>> my_pools_vector;
+//vector <My_memory_pool*>::iterator pool_choice;
+vector <boost::shared_ptr<My_memory_pool>>::iterator pool_choice;
 
 class My_memory_pool : public boost::pool<>
 {
@@ -109,11 +110,14 @@ void Enter_Pools()
 	while (sizes != 0)
 	{
 		cin >> sizes;
-		if(sizes != 0)
-			my_pools_vector.push_back(new My_memory_pool(sizes));
+		if(sizes != 0){
+			//my_pools_vector.push_back(new My_memory_pool(sizes));
+			my_pools_vector.push_back(boost::shared_ptr<My_memory_pool>(new My_memory_pool(sizes)));
+
+		}
 	}
 
-	sort(my_pools_vector.begin(), my_pools_vector.end(), [ ] (const My_memory_pool *pool0, const My_memory_pool *pool2) { return pool0->get_requested_size() < pool2->get_requested_size(); } ); // Sort pools by size.
+	sort(my_pools_vector.begin(), my_pools_vector.end(), [ ] (const boost::shared_ptr<My_memory_pool> pool0, const boost::shared_ptr<My_memory_pool> pool2) { return pool0->get_requested_size() < pool2->get_requested_size(); } ); // Sort pools by size.
 
 //-------------------------------------------------------Set minimum size--------------------------------------------------------
 
@@ -126,12 +130,12 @@ void Enter_Pools()
 
 struct compare
 {
-	bool operator() (const My_memory_pool *left, unsigned int value)
+	bool operator() (const boost::shared_ptr<My_memory_pool> left, unsigned int value)
 	{
 		return left->get_requested_size() < value;
 	}
 };
-vector <My_memory_pool*>::iterator Pick_Pool(const size_t n_bytes) //This functions returns the most optimal pool to allocate\deallocate memory from.
+vector <boost::shared_ptr<My_memory_pool>>::iterator Pick_Pool(const size_t n_bytes) //This functions returns the most optimal pool to allocate\deallocate memory from.
 {
 	pool_choice = lower_bound(my_pools_vector.begin(), my_pools_vector.end(), n_bytes, compare() );
 	if(pool_choice == my_pools_vector.end())
@@ -153,16 +157,6 @@ void Test_0()
 	cout << " *x after delete: " << *x << endl;
 }
 
-once_flag call_once_flag;
-void Free_All()
-{
-	call_once(call_once_flag, []  //Executes the Callable object  exactly once, even if called from several threads.
-    {
-    	for(auto pools_iterator = my_pools_vector.begin(); pools_iterator != my_pools_vector.end() ; pools_iterator++ )
-    	    delete(*pools_iterator);
-
-    });
-}
 
 int main(int argc, char** argv)
 {
@@ -173,7 +167,6 @@ int main(int argc, char** argv)
 
 
 
-	Free_All();
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; cout<< endl << endl << "Time: " << duration << endl;
     return 0;
 }
