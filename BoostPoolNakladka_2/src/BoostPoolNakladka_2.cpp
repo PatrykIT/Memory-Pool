@@ -90,7 +90,7 @@ public:
 	{
 	    void *my_info = (unsigned short int*) to_erase - 1; //Go one place back, in order to retrieve information about how many bytes were allocated by user.
 	    pool_choice = Pick_Pool(*(unsigned short int*) my_info);
-	    cout << "Freeing from the pool size: : " << (*pool_choice)->get_requested_size() << endl;
+	    cout << "Freeing from the pool size: " << (*pool_choice)->get_requested_size() << endl;
 	    (*pool_choice)->deallocate(my_info, to_erase);
 
 	}
