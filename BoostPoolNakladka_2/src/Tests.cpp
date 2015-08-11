@@ -2,7 +2,6 @@
 
 #include "../headers/Classes.h"
 #include "../headers/Tests.h"
-using namespace std;
 
 
 
@@ -38,17 +37,20 @@ void Perfomance_Test()
         large_structure *x = new large_structure;
         delete x;
     }
-    cout <<"End of perfomance test."<<endl;
 }
 
 void Test_0()
 {
-	int *x = (int*) My_memory_pool::my_new(sizeof(int));
-	*x = 99;
-	cout <<"*x: " << *x << endl;
+	int *x = (int*) Memory_Pool::MyMemoryPool::my_new(sizeof(int));
 
-	My_memory_pool::my_delete(x);
-	cout << " *x after delete: " << *x << endl;
+	if ( x == NULL)
+		return;
+
+	*x = 99;
+	std::cout <<"*x: " << *x << std::endl;
+
+	Memory_Pool::MyMemoryPool::my_delete(x);
+	std::cout << " *x after delete: " << *x << std::endl;
 }
 
 
@@ -57,12 +59,12 @@ void Test_1()
 	int *i = new int (5);
 
 	void *place_2 = (void*) i - 2; //place - 2;
-	cout <<"my info: " << *(unsigned short int*)place_2 << endl;
+	std::cout <<"my info: " << *(unsigned short int*)place_2 << std::endl;
 
 	delete i;
 
-	cout << "after free: *i " << *i << endl;
-	cout <<"my info: " << *(unsigned short int*)place_2 << endl;
+	std::cout << "after free: *i " << *i << std::endl;
+	std::cout <<"my info: " << *(unsigned short int*)place_2 << std::endl;
 }
 
 
@@ -73,7 +75,7 @@ void Test_2()
     double *d = new double(10.5);
     char *c = new char('C');
 
-    cout << *i << " || " << *d << " || " << *c << endl;
+    std::cout << *i << " || " << *d << " || " << *c << std::endl;
 
     delete i; delete d; delete c;
 }

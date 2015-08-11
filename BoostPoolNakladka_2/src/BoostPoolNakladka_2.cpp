@@ -9,15 +9,9 @@
 #include "../headers/Tests.h"
 
 
-class My_memory_pool;
-std::vector <boost::shared_ptr<My_memory_pool>>::iterator Pick_Pool(const size_t n_bytes);
-std::vector <boost::shared_ptr<My_memory_pool>> my_pools_vector;
-std::vector <boost::shared_ptr<My_memory_pool>>::iterator pool_choice;
-
-
-
-
-
+class Memory_Pool::MyMemoryPool;
+std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>> my_pools_vector;
+std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>>::iterator pool_choice;
 
 
 
@@ -28,7 +22,6 @@ int main(int argc, char** argv)
 	Test_0();
 
 	Perfomance_Test();
-
 
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; std::cout<< std::endl << std::endl << "Time: " << duration << std::endl;
     return 0;
