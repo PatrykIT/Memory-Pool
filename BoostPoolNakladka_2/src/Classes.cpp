@@ -7,23 +7,23 @@
 
 extern std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>> my_pools_vector;
 extern std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>>::iterator pool_choice;
-
-void* Memory_Pool::MyMemoryPool::allocate(size_t n_bytes)
-{
-    std::cout << "Putting object into pool size: " << get_requested_size() << std::endl;
-    void *storage;
-    storage = this->malloc();
-
-    if( storage == NULL )
-    {
-    printf("Memory allocation failed!");
-    return NULL;
-    }
-
-    *(unsigned short int*) storage = (unsigned short int) n_bytes; //Place information about allocated bytes in the beginning of 'storage'.
-
-    return storage + sizeof(unsigned short int); //Compiler will construct an object one place after our information.
-  }
+	
+	void* Memory_Pool::MyMemoryPool::allocate(size_t n_bytes)
+	{
+	    std::cout << "Putting object into pool size: " << get_requested_size() << std::endl;
+	    void *storage;
+	    storage = this->malloc();
+	
+	    if( storage == NULL )
+	    {
+	    printf("Memory allocation failed!");
+	    return NULL;
+	    }
+	
+	    *(unsigned short int*) storage = (unsigned short int) n_bytes; //Place information about allocated bytes in the beginning of 'storage'.
+	
+	    return storage + sizeof(unsigned short int); //Compiler will construct an object one place after our information.
+	  }
 
 	void Memory_Pool::MyMemoryPool::deallocate(void *my_info ,void *to_erase)
 	{
