@@ -8,16 +8,16 @@
 extern std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>> my_pools_vector;
 extern std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>>::iterator pool_choice;
 
-void* Memory_Pool::MyMemoryPool::allocate(size_t n_bytes)
-{
+  void* Memory_Pool::MyMemoryPool::allocate(size_t n_bytes)
+  {
     std::cout << "Putting object into pool size: " << get_requested_size() << std::endl;
     void *storage;
     storage = this->malloc();
 
     if( storage == NULL )
     {
-    printf("Memory allocation failed!");
-    return NULL;
+      perror("Memory allocation failed!");
+      return NULL;
     }
 
     *(unsigned short int*) storage = (unsigned short int) n_bytes; //Place information about allocated bytes in the beginning of 'storage'.
@@ -45,7 +45,7 @@ void* Memory_Pool::MyMemoryPool::allocate(size_t n_bytes)
 
 		if(pool_choice == my_pools_vector.end())
 		{
-			printf("Cannot allocate - there is no suitable memory pool for that amount of memory.\n");
+			perror("Cannot allocate - there is no suitable memory pool for that amount of memory.");
 			return NULL;
 	  }
 
