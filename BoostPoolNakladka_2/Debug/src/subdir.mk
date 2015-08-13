@@ -6,16 +6,19 @@
 CPP_SRCS += \
 ../src/BoostPoolNakladka_2.cpp \
 ../src/Classes.cpp \
+../src/TestCases.cpp \
 ../src/Tests.cpp 
 
 OBJS += \
 ./src/BoostPoolNakladka_2.o \
 ./src/Classes.o \
+./src/TestCases.o \
 ./src/Tests.o 
 
 CPP_DEPS += \
 ./src/BoostPoolNakladka_2.d \
 ./src/Classes.d \
+./src/TestCases.d \
 ./src/Tests.d 
 
 

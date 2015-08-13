@@ -16,7 +16,7 @@ extern std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>>::iterator pool
 
 	  void* Memory_Pool::MyMemoryPool::allocate(size_t n_bytes, uintptr_t* place)
 	  {
-		std::cout << "Putting object into pool size: " << get_requested_size() << std::endl;
+		//std::cout << "Putting object into pool size: " << get_requested_size() << std::endl;
 		void *storage;
 		storage = this->malloc();
 
@@ -63,7 +63,7 @@ extern std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>>::iterator pool
 	    std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>>::iterator *delete_choice = (std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>>::iterator *) my_info;
 
 	    //std::cout << "delete choice: " << &(*delete_choice) << "\n"; //std::cout << "delete choice 2: " << &(*(*delete_choice)) << "\n";
-	    std::cout << "Freeing from the pool size: " <<(**delete_choice)->get_requested_size() << "\n";
+	    //std::cout << "Freeing from the pool size: " <<(**delete_choice)->get_requested_size() << "\n";
 
 	    (**delete_choice)->deallocate(my_info, to_erase);
 	}

@@ -6,10 +6,10 @@
 
 
 
-void Performance_Test()
+void Performance_Test_Default_New()
 {
 
-    for (int i = 0 ; i <10000 ; ++i)
+    for (int i = 0 ; i <500000 ; ++i)
     {
         char *a = new char;
         delete a;
@@ -36,6 +36,37 @@ void Performance_Test()
     {
         large_structure *x = new large_structure;
         delete x;
+    }
+}
+void Performance_Test_Pool()
+{
+    /*for (int i = 0 ; i <500000 ; ++i)
+    {
+        char *a = (char*) Memory_Pool::MyMemoryPool::my_new(sizeof(char));
+        Memory_Pool::MyMemoryPool::my_delete(a);
+    }*/
+
+    for (int i = 0 ; i <500000 ; ++i)
+    {
+        int *a = (int*) Memory_Pool::MyMemoryPool::my_new(sizeof(int));
+        Memory_Pool::MyMemoryPool::my_delete(a);
+    }
+
+
+    for (int i = 0 ; i <500000 ; ++i)
+    {
+        double *a = (double*) Memory_Pool::MyMemoryPool::my_new(sizeof(double));
+        Memory_Pool::MyMemoryPool::my_delete(a);
+    }
+
+      struct large_structure {
+        int a, b, c, d; double e, f; char g, h;
+    };
+
+    for(int i = 0 ; i < 500000; ++i)
+    {
+        large_structure *a = (large_structure*) Memory_Pool::MyMemoryPool::my_new(sizeof(large_structure));
+        Memory_Pool::MyMemoryPool::my_delete(a);
     }
 }
 
