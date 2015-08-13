@@ -8,7 +8,7 @@
 #ifndef TESTS_H_
 #define TESTS_H_
 
-void Perfomance_Test();
+void Performance_Test();
 void Test_0();
 void Test_1();
 void Test_2();

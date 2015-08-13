@@ -6,7 +6,7 @@
 
 
 
-void Perfomance_Test()
+void Performance_Test()
 {
 
     for (int i = 0 ; i <10000 ; ++i)
@@ -47,27 +47,44 @@ void Test_0()
 		return;
 
 	*x = 99;
-	std::cout <<"*x: " << *x << std::endl;
-
+	//std::cout <<"*x: " << *x << std::endl;
 	Memory_Pool::MyMemoryPool::my_delete(x);
-	std::cout << " *x after delete: " << *x << std::endl;
+	std::cout << "*x after delete: " << *x << std::endl;
 }
-
 
 void Test_1()
 {
-	int *i = new int (5);
+	int *x, *y, *a, *b;
 
-	void *place_2 = (void*) i - 2; //place - 2;
-	std::cout <<"my info: " << *(unsigned short int*)place_2 << std::endl;
+	x = (int*) Memory_Pool::MyMemoryPool::my_new(sizeof(int));
+	y = (int*) Memory_Pool::MyMemoryPool::my_new(sizeof(int));
+	a = (int*) Memory_Pool::MyMemoryPool::my_new(sizeof(int));
+	b = (int*) Memory_Pool::MyMemoryPool::my_new(sizeof(int));
 
-	delete i;
+	*y = 10; *b = 6; *a = 2; *x = -15;
 
-	std::cout << "after free: *i " << *i << std::endl;
-	std::cout <<"my info: " << *(unsigned short int*)place_2 << std::endl;
+	double *q, *w, *e;
+	q = (double*) Memory_Pool::MyMemoryPool::my_new(sizeof(double));
+	w = (double*) Memory_Pool::MyMemoryPool::my_new(sizeof(double));
+	e = (double*) Memory_Pool::MyMemoryPool::my_new(sizeof(double));
+
+	*q = 7.5; *w = 8.9; *e = -23.4;
+
+	printf("My vars: %d | %d | %d | %d\n%f | %f | %f\n", *y, *b, *a, *x, *q, *w, *e);
+
+	Memory_Pool::MyMemoryPool::my_delete(x);
+	Memory_Pool::MyMemoryPool::my_delete(y);
+	Memory_Pool::MyMemoryPool::my_delete(a);
+	Memory_Pool::MyMemoryPool::my_delete(b);
+
+	Memory_Pool::MyMemoryPool::my_delete(q);
+	Memory_Pool::MyMemoryPool::my_delete(e);
+	Memory_Pool::MyMemoryPool::my_delete(w);
+
+	printf("My vars after delete: %d | %d | %d | %d\n%f | %f | %f\n", *y, *b, *a, *x, *q, *w, *e);
+
+
 }
-
-
 
 void Test_2()
 {

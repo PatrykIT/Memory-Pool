@@ -15,12 +15,12 @@ namespace Memory_Pool
 	class MyMemoryPool : public boost::pool<>
 	{
 	private:
-		void* allocate(size_t n_bytes);
+		void* allocate(size_t n_bytes, uintptr_t* place);
 		void deallocate(void *my_info ,void *to_erase);
-    struct compare
-    {
-      bool operator() (const boost::shared_ptr<Memory_Pool::MyMemoryPool> left, unsigned int value);
-    };
+		struct compare
+		{
+		  bool operator() (const boost::shared_ptr<Memory_Pool::MyMemoryPool> left, unsigned int value);
+		};
 
 	public:
 		MyMemoryPool(size_t max_size);
@@ -30,6 +30,7 @@ namespace Memory_Pool
 	};
 }
 void Enter_Pools();
+void Pools_Addresses();
 
 
 
