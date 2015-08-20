@@ -40,26 +40,26 @@ void Performance_Test_Default_New()
 }
 void Performance_Test_Pool()
 {
-    for (int i = 0 ; i <50000 ; ++i)
+	for (int i = 0 ; i <50000 ; ++i)
     {
-        char *a = (char*) memory_pool::MyMemoryPool::my_new(sizeof(char));
+        char *a = memory_pool::MyMemoryPool::my_new<char>();
         memory_pool::MyMemoryPool::my_delete(a);
     }
 
     for (int i = 0 ; i <500000 ; ++i)
     {
-        int *a = (int*) memory_pool::MyMemoryPool::my_new(sizeof(int));
+        int *a = memory_pool::MyMemoryPool::my_new<int>();
         memory_pool::MyMemoryPool::my_delete(a);
     }
 
 
     for (int i = 0 ; i <500000 ; ++i)
     {
-        double *a = (double*) memory_pool::MyMemoryPool::my_new(sizeof(double));
+        double *a = memory_pool::MyMemoryPool::my_new<double>();
         memory_pool::MyMemoryPool::my_delete(a);
     }
 
-      struct large_structure {
+      /*struct large_structure {
         int a, b, c, d; double e, f; char g, h;
     };
 
@@ -67,7 +67,7 @@ void Performance_Test_Pool()
     {
         large_structure *a = (large_structure*) memory_pool::MyMemoryPool::my_new(sizeof(large_structure));
         memory_pool::MyMemoryPool::my_delete(a);
-    }
+    }*/
 }
 
 void Performance_Test_Default_New_2()
@@ -119,7 +119,7 @@ void Performance_Test_Default_New_2()
 
 void Performance_Test_Pool_2()
 {
-	int size = 12000, size_2 = size / 2;
+	/*int size = 12000, size_2 = size / 2;
 
 	int *tab_of_ints[size]; char *tab_of_chars[size]; 	double *tab_of_doubles[size];
 	for (int i = 0; i < size_2; ++i)
@@ -155,7 +155,7 @@ void Performance_Test_Pool_2()
 
 	memory_pool::MyMemoryPool::my_pools_vector[0]->purge_memory();
 	memory_pool::MyMemoryPool::my_pools_vector[1]->purge_memory();
-	memory_pool::MyMemoryPool::my_pools_vector[2]->purge_memory();
+	memory_pool::MyMemoryPool::my_pools_vector[2]->purge_memory();*/
 
 
 	/*for (int i = 0; i < size; ++i)
@@ -168,7 +168,8 @@ void Performance_Test_Pool_2()
 
 void Test_0()
 {
-	int *x = (int*) memory_pool::MyMemoryPool::my_new(sizeof(int));
+	//int *x = (int*) memory_pool::MyMemoryPool::my_new(sizeof(int));
+	int *x = memory_pool::MyMemoryPool::my_new<int>();
 
 	if ( x == NULL)
 		return;
@@ -181,7 +182,7 @@ void Test_0()
 
 void Test_1()
 {
-	int *x, *y, *a, *b;
+	/*int *x, *y, *a, *b;
 
 	x = (int*) memory_pool::MyMemoryPool::my_new(sizeof(int));
 	y = (int*) memory_pool::MyMemoryPool::my_new(sizeof(int));
@@ -208,7 +209,7 @@ void Test_1()
 	memory_pool::MyMemoryPool::my_delete(e);
 	memory_pool::MyMemoryPool::my_delete(w);
 
-	printf("My vars after delete: %d | %d | %d | %d\n%f | %f | %f\n", *y, *b, *a, *x, *q, *w, *e);
+	printf("My vars after delete: %d | %d | %d | %d\n%f | %f | %f\n", *y, *b, *a, *x, *q, *w, *e);*/
 
 
 }

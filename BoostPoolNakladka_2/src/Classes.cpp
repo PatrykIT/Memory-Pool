@@ -36,40 +36,20 @@ namespace memory_pool
 		return first + add_pool(args...);
 	}*/
 
-
-	void* MyMemoryPool::allocate(size_t n_bytes, uintptr_t* place)
+	void* MyMemoryPool::allocate(uintptr_t* place)
 	{
-	void *storage;
-	storage = this->malloc();
+		void *storage;
+		storage = this->malloc();
 
-	if( storage == NULL )
-	{
-		perror("Memory allocation failed!");
-		return NULL;
-	}
-
-	*reinterpret_cast<uintptr_t*> (storage) = reinterpret_cast<uintptr_t>(place); //Place address about allocated bytes in the beginning of 'storage'.
-
-	return (static_cast<char*>(storage) + sizeof(uintptr_t)); //Compiler will construct an object one place after our information.
-	}
-
-
-	void* MyMemoryPool::my_new(size_t n_bytes)
-	{
-		n_bytes = n_bytes + sizeof(uintptr_t); //Place for my own information, which is index of a vector that points to the memory pool object was allocated from.
-		pool_choice = Pick_Pool(n_bytes);
-
-		uintptr_t* place = reinterpret_cast<uintptr_t*> (&(*pool_choice));
-
-		if(pool_choice == my_pools_vector.end())
+		if( storage == NULL )
 		{
-			perror("Cannot allocate - there is no suitable memory pool for that amount of memory.");
+			perror("Memory allocation failed!");
 			return NULL;
 		}
+		*reinterpret_cast<uintptr_t*> (storage) = reinterpret_cast<uintptr_t>(place); //Place address about allocated bytes in the beginning of 'storage'.
 
-		return (*pool_choice)->allocate(n_bytes, place);
+		return (static_cast<char*>(storage) + sizeof(uintptr_t)); //Compiler will construct an object one place after our information.
 	}
-
 
 	void MyMemoryPool::deallocate(void *my_info ,void *to_erase)
 	{

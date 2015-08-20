@@ -10,7 +10,7 @@
 using namespace std;
 
 
-
+/*
 template<typename T>
 class Allocator {
 public :
@@ -86,7 +86,7 @@ public :
     			return !operator==(a);
     		}
 };
-
+*/
 
 /*
 template <typename T>
