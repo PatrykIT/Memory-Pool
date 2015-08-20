@@ -1,37 +1,37 @@
-/*
- * Classes.h
- *
- *  Created on: Aug 10, 2015
- *      Author: patrykit
- */
-
 #ifndef CLASSES_H_
 #define CLASSES_H_
 
 #include <boost/pool/pool.hpp>
-
-namespace Memory_Pool
+#include <initializer_list>
+#include <vector>
+namespace memory_pool
 {
 	class MyMemoryPool : public boost::pool<>
 	{
 	private:
 		void* allocate(size_t n_bytes, uintptr_t* place);
 		void deallocate(void *my_info ,void *to_erase);
-		struct compare
+		struct Compare
 		{
-		  bool operator() (const boost::shared_ptr<Memory_Pool::MyMemoryPool> left, unsigned int value);
+		  bool operator() (const boost::shared_ptr<memory_pool::MyMemoryPool> left, unsigned int value);
 		};
+		static std::vector <boost::shared_ptr<memory_pool::MyMemoryPool>>::iterator Pick_Pool(const size_t n_bytes);
 
 	public:
-		MyMemoryPool(size_t max_size);
+		MyMemoryPool(size_t, size_t blocks_number = 512);
+
+
+		/*template <class T>
+		MyMemoryPool(std::initializer_list<T> list);*/
+
 		static void* my_new(size_t n_bytes);
 		static void my_delete(void *to_erase);
-		static std::vector <boost::shared_ptr<Memory_Pool::MyMemoryPool>>::iterator Pick_Pool(const size_t n_bytes);
-	};
-}
-void Enter_Pools();
-void Pools_Addresses();
 
+		static std::vector <boost::shared_ptr<MyMemoryPool>> my_pools_vector;
+		static std::vector <boost::shared_ptr<MyMemoryPool>>::iterator pool_choice;
+	};
+	void Enter_Pools();
+}
 
 
 #endif /* CLASSES_H_ */
