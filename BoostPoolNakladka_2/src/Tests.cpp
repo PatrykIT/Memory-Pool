@@ -72,7 +72,7 @@ void Performance_Test_Pool()
 
 void Performance_Test_Default_New_2()
 {
-	int size = 12000, size_2 = size / 2;
+	int size = 240000, size_2 = size / 2;
 
 	int *tab_of_ints[size]; char *tab_of_chars[size]; 	double *tab_of_doubles[size];
 
@@ -90,6 +90,7 @@ void Performance_Test_Default_New_2()
 	{
 		tab_of_doubles[i] = new double;
 	}
+
 
 
 	for(int i = size_2; i < size; ++i)
@@ -119,50 +120,51 @@ void Performance_Test_Default_New_2()
 
 void Performance_Test_Pool_2()
 {
-	/*int size = 12000, size_2 = size / 2;
+	int size = 240000, size_2 = size / 2;
 
 	int *tab_of_ints[size]; char *tab_of_chars[size]; 	double *tab_of_doubles[size];
 	for (int i = 0; i < size_2; ++i)
 	{
-		tab_of_ints[i] = (int*) memory_pool::MyMemoryPool::my_new(sizeof(int));
+		tab_of_ints[i] = memory_pool::MyMemoryPool::my_new<int>();
 	}
 
 	for (int i = 0; i < size_2; ++i)
 	{
-		tab_of_chars[i] = (char*) memory_pool::MyMemoryPool::my_new(sizeof(char));
+		tab_of_chars[i] = memory_pool::MyMemoryPool::my_new<char>();
 	}
 
 	for (int i = 0; i < size_2; ++i)
 	{
-		tab_of_doubles[i] = (double*) memory_pool::MyMemoryPool::my_new(sizeof(double));
+		tab_of_doubles[i] = memory_pool::MyMemoryPool::my_new<double>();
 	}
+
 
 
 	for (int i = size_2; i < size; ++i)
 	{
-		tab_of_ints[i] = (int*) memory_pool::MyMemoryPool::my_new(sizeof(int));
+		tab_of_ints[i] = memory_pool::MyMemoryPool::my_new<int>();
 	}
 
 	for (int i = size_2; i < size; ++i)
 	{
-		tab_of_doubles[i] = (double*) memory_pool::MyMemoryPool::my_new(sizeof(double));
+		tab_of_doubles[i] = memory_pool::MyMemoryPool::my_new<double>();
 	}
 
 	for (int i = size_2; i < size; ++i)
 	{
-		tab_of_chars[i] = (char*) memory_pool::MyMemoryPool::my_new(sizeof(char));
+		tab_of_chars[i] = memory_pool::MyMemoryPool::my_new<char>();
 	}
 
-	memory_pool::MyMemoryPool::my_pools_vector[0]->purge_memory();
+	memory_pool::MyMemoryPool::my_pools_vector[0]->purge_memory(); //must be 3 vector. Could use function .at(), it does check bound range, but it would be slower.
 	memory_pool::MyMemoryPool::my_pools_vector[1]->purge_memory();
-	memory_pool::MyMemoryPool::my_pools_vector[2]->purge_memory();*/
+	memory_pool::MyMemoryPool::my_pools_vector[2]->purge_memory();
 
 
 	/*for (int i = 0; i < size; ++i)
 	{
-		Memory_Pool::MyMemoryPool::my_delete(tab_of_ints[i]);
-		Memory_Pool::MyMemoryPool::my_delete(tab_of_chars[i]);
-		Memory_Pool::MyMemoryPool::my_delete(tab_of_doubles[i]);
+		memory_pool::MyMemoryPool::my_delete(tab_of_ints[i]);
+		memory_pool::MyMemoryPool::my_delete(tab_of_chars[i]);
+		memory_pool::MyMemoryPool::my_delete(tab_of_doubles[i]);
 	}*/
 }
 

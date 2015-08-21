@@ -10,7 +10,7 @@
 using namespace std;
 
 
-/*
+
 template<typename T>
 class Allocator {
 public :
@@ -52,7 +52,7 @@ public :
     inline T* allocate(size_t cnt, typename std::allocator<void>::const_pointer = 0)
     {
       //return reinterpret_cast<pointer>(::operator new(cnt * sizeof (T)));
-    	return reinterpret_cast<T*>(memory_pool::MyMemoryPool::my_new(cnt * sizeof (T)));
+    	return memory_pool::MyMemoryPool::my_new<T>();
     }
     inline void deallocate(T* p, size_t)
     {
@@ -86,7 +86,7 @@ public :
     			return !operator==(a);
     		}
 };
-*/
+
 
 /*
 template <typename T>
@@ -177,18 +177,18 @@ int main(int argc, char** argv)
 	memory_pool::Enter_Pools();
 	//Memory_Pool::MyMemoryPool obj1;
 	Test_0();
-	memory_pool::MyMemoryPool obj1(4, 64);
+	//memory_pool::MyMemoryPool obj1(4, 64);
 
 	//func2({16, 24});
 
-	/*Allocator<int> my_alloc; vector<int, Allocator<int>> my_vec(my_alloc); my_vec.push_back(15); my_vec.push_back(9);*/
+	//Allocator<int> my_alloc; vector<int, Allocator<int>> my_vec(my_alloc); my_vec.push_back(15); my_vec.push_back(9);
 	//for(auto iteratorek = my_vec.begin(); iteratorek != my_vec.end(); ++iteratorek)
 		//std::cout << "vec: " << *iteratorek << endl;
 
 
 
 	clock_t start = clock();
-	//Performance_Test_Default_New_2();
+	Performance_Test_Default_New_2();
 	//Performance_Test_Pool_2();
 
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; std::cout << fixed << std::endl << std::endl << "Time: " << duration << std::endl;
