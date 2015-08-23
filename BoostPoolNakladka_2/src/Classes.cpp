@@ -54,7 +54,7 @@ namespace memory_pool
 
 	void MyMemoryPool::deallocate(void *my_info ,void *to_erase)
 	{
-		this->free(my_info);
+		//this->free(my_info);
 		this->free(to_erase); //to consult with Tomek. I have a question.
 	}
 
@@ -64,7 +64,7 @@ namespace memory_pool
 	    void *my_info = static_cast<uintptr_t*>(to_erase) - 1; //Go one place back, to get iterator that allocated this object.
 
 	    std::vector <boost::shared_ptr<memory_pool::MyMemoryPool>>::iterator *delete_choice = (std::vector <boost::shared_ptr<memory_pool::MyMemoryPool>>::iterator *) my_info;
-	    //std::cout  << "Deleting from pool: " << (**delete_choice)->get_requested_size() << "\n";
+	    std::cout  << "Deleting from pool: " << (**delete_choice)->get_requested_size() << "\n";
 	    (**delete_choice)->deallocate(my_info, to_erase);
 	}
 

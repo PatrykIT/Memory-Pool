@@ -28,6 +28,7 @@ public :
     struct rebind
 	{
         typedef Allocator<U> other;
+        /*This is a very elegant solution to a requirement any allocator has to fulfill: to be able to allocate objects of different types than its template parameter. */
     };
 
 public :
@@ -37,7 +38,6 @@ public :
     template<typename U>
     inline explicit Allocator(Allocator<U> const&) {}
 
-    //    address
     inline T* address(T& r)
     {
     	return &r;
@@ -48,7 +48,6 @@ public :
     	return &r;
     }
 
-    //    memory allocation
     inline T* allocate(size_t cnt, typename std::allocator<void>::const_pointer = 0)
     {
       //return reinterpret_cast<pointer>(::operator new(cnt * sizeof (T)));
@@ -60,16 +59,15 @@ public :
     	memory_pool::MyMemoryPool::my_delete(p);
     }
 
-    //    size
     inline size_t max_size() const
     {
         return std::numeric_limits<size_t>::max() / sizeof(T);
     }
 
-    //    construction/destruction
-    inline void construct(T* p, const T& t)
+    inline void construct(T* p, /*const*/ T& t)
     {
-    	new(p) T(t);
+    	//new(p) T(t);
+    	t.T::T();
     }
 
     inline void destroy(T* p)
@@ -79,11 +77,11 @@ public :
 
     inline bool operator==(Allocator const&)
     		{
-    			return true;
+    			return true; //hardcoded to return true
     		}
     inline bool operator!=(Allocator const& a)
     		{
-    			return !operator==(a);
+    			return !operator==(a); //hardcoded to return false
     		}
 };
 
@@ -172,6 +170,8 @@ void func2( std::initializer_list<T> list )
     }
 }
 
+
+
 int main(int argc, char** argv)
 {
 	memory_pool::Enter_Pools();
@@ -181,14 +181,23 @@ int main(int argc, char** argv)
 
 	//func2({16, 24});
 
-	//Allocator<int> my_alloc; vector<int, Allocator<int>> my_vec(my_alloc); my_vec.push_back(15); my_vec.push_back(9);
-	//for(auto iteratorek = my_vec.begin(); iteratorek != my_vec.end(); ++iteratorek)
-		//std::cout << "vec: " << *iteratorek << endl;
+	Allocator<int> my_alloc;
+
+	vector<int, Allocator<int>> my_vec(my_alloc);
+	cout <<"capacity: " << my_vec.capacity() << endl;
+	my_vec.reserve(20);
+	cout <<"capacity: " << my_vec.capacity() << endl;
+
+	my_vec.push_back(15);
+	my_vec.push_back(9);
+	for(auto iteratorek = my_vec.begin(); iteratorek != my_vec.end(); ++iteratorek)
+		std::cout << "vec: " << *iteratorek << endl;
+
 
 
 
 	clock_t start = clock();
-	Performance_Test_Default_New_2();
+	//Performance_Test_Default_New_2();
 	//Performance_Test_Pool_2();
 
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; std::cout << fixed << std::endl << std::endl << "Time: " << duration << std::endl;
