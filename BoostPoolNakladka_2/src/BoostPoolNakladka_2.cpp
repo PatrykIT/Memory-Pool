@@ -176,7 +176,7 @@ int main(int argc, char** argv)
 {
 	memory_pool::Enter_Pools();
 	//Memory_Pool::MyMemoryPool obj1;
-	Test_0();
+	//Test_0();
 	//memory_pool::MyMemoryPool obj1(4, 64);
 
 	//func2({16, 24});
@@ -188,8 +188,8 @@ int main(int argc, char** argv)
 
 
 	clock_t start = clock();
-	Performance_Test_Default_New_2();
-	//Performance_Test_Pool_2();
+	//Performance_Test_Default_New_2();
+	Performance_Test_Pool_2();
 
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; std::cout << fixed << std::endl << std::endl << "Time: " << duration << std::endl;
     return 0;

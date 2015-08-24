@@ -132,6 +132,7 @@ void Performance_Test_Pool_2()
 	{
 		tab_of_chars[i] = memory_pool::MyMemoryPool::my_new<char>();
 	}
+	 std::cout << "Allocated chuncks by vec[0]: " <<memory_pool::MyMemoryPool::my_pools_vector[0]->get_allocated_chuncks() << "\n";
 
 	for (int i = 0; i < size_2; ++i)
 	{
@@ -155,17 +156,17 @@ void Performance_Test_Pool_2()
 		tab_of_chars[i] = memory_pool::MyMemoryPool::my_new<char>();
 	}
 
-	memory_pool::MyMemoryPool::my_pools_vector[0]->purge_memory(); //must be 3 vector. Could use function .at(), it does check bound range, but it would be slower.
+	/*memory_pool::MyMemoryPool::my_pools_vector[0]->purge_memory(); //must be 3 vector. Could use function .at(), it does check bound range, but it would be slower.
 	memory_pool::MyMemoryPool::my_pools_vector[1]->purge_memory();
-	memory_pool::MyMemoryPool::my_pools_vector[2]->purge_memory();
+	memory_pool::MyMemoryPool::my_pools_vector[2]->purge_memory();*/
 
 
-	/*for (int i = 0; i < size; ++i)
+	for (int i = 0; i < size; ++i)
 	{
 		memory_pool::MyMemoryPool::my_delete(tab_of_ints[i]);
 		memory_pool::MyMemoryPool::my_delete(tab_of_chars[i]);
 		memory_pool::MyMemoryPool::my_delete(tab_of_doubles[i]);
-	}*/
+	}
 }
 
 void Test_0()
