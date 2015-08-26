@@ -10,7 +10,7 @@
 using namespace std;
 
 
-
+//Custom allocator, that uses memory pool. It crashes when STL containters resize themselves.
 template<typename T>
 class Allocator {
 public :
@@ -28,6 +28,7 @@ public :
     struct rebind
 	{
         typedef Allocator<U> other;
+        //This is a very elegant solution to a requirement any allocator has to fulfill: to be able to allocate objects of different types than its template parameter.
     };
 
 public :
@@ -37,7 +38,6 @@ public :
     template<typename U>
     inline explicit Allocator(Allocator<U> const&) {}
 
-    //    address
     inline T* address(T& r)
     {
     	return &r;
@@ -48,28 +48,23 @@ public :
     	return &r;
     }
 
-    //    memory allocation
     inline T* allocate(size_t cnt, typename std::allocator<void>::const_pointer = 0)
     {
-      //return reinterpret_cast<pointer>(::operator new(cnt * sizeof (T)));
     	return memory_pool::MyMemoryPool::my_new<T>();
     }
     inline void deallocate(T* p, size_t)
     {
-        //::operator delete(p);
     	memory_pool::MyMemoryPool::my_delete(p);
     }
 
-    //    size
     inline size_t max_size() const
     {
         return std::numeric_limits<size_t>::max() / sizeof(T);
     }
 
-    //    construction/destruction
-    inline void construct(T* p, const T& t)
+    inline void construct(T &t)
     {
-    	new(p) T(t);
+    	t.T::T();
     }
 
     inline void destroy(T* p)
@@ -78,118 +73,35 @@ public :
     }
 
     inline bool operator==(Allocator const&)
-    		{
-    			return true;
-    		}
+	{
+		return true; //hardcoded to return true
+	}
     inline bool operator!=(Allocator const& a)
-    		{
-    			return !operator==(a);
-    		}
+	{
+		return !operator==(a); //hardcoded to return false
+	}
 };
 
 
-/*
-template <typename T>
-class Allocator
-{
-public:
-	typedef T value_type;
-	typedef T* pointer;
-	typedef const T* const_pointer;
-	typedef T& reference;
-	typedef const T& const_reference;
-    typedef size_t size_type;
-	typedef ptrdiff_t difference_type;
-
-public:
-	template <typename U>
-	struct rebind
-	{
-		typedef Allocator<U> other;
-	};
-
-public:
-	explicit Allocator() {}
-	~Allocator() {}
-	explicit Allocator(Allocator const&){}
-
-	template <typename U>
-	explicit Allocator(Allocator<U> const&){}
-
-	inline pointer address (reference r)
-	{
-		return &r;
-	}
-
-	const pointer address(const reference r)
-	{
-		return &r;
-	}
-
-	T* allocate (size_t cnt, typename std::allocator<void>::const_pointer = 0)
-	{
-		return reinterpret_cast<T*>(::operator new(cnt * sizeof(T)));
-	}
-
-	void deallocate(T* to_erase, size_t)
-	{
-		::operator delete(to_erase);
-	}
-
-	size_type max_size() const
-	{
-		return std::numeric_limits<size_type>::max() / sizeof(T);
-	}
-
-
-	void construct (pointer place, const T& object)
-	{
-		new (place) T(object);
-	}
-
-	void destroy(pointer place)
-	{
-		place->~T();
-	}
-
-	bool operator ==(Allocator const&)
-		{
-			return true;
-		}
-
-	bool operator !=(Allocator const& a)
-		{
-			return !operator==(a);
-		}
-};*/
-
-template <class T>
-void func2( std::initializer_list<T> list )
-{
-    for( auto elem : list )
-    {
-        std::cout << elem << "\n" ;
-    }
-}
-
 int main(int argc, char** argv)
 {
-	memory_pool::Enter_Pools();
-	//Memory_Pool::MyMemoryPool obj1;
-	//Test_0();
-	//memory_pool::MyMemoryPool obj1(4, 64);
+	//memory_pool::MyMemoryPool::Register_Pools({10, 23});
+	memory_pool::MyMemoryPool::Register_Pools({ {65, 31}, {60, 83} });
+	Test_0();
 
-	//func2({16, 24});
-
-	//Allocator<int> my_alloc; vector<int, Allocator<int>> my_vec(my_alloc); my_vec.push_back(15); my_vec.push_back(9);
-	//for(auto iteratorek = my_vec.begin(); iteratorek != my_vec.end(); ++iteratorek)
-		//std::cout << "vec: " << *iteratorek << endl;
+	/* //Example of Allocator usage.
+	Allocator<int> my_alloc;
+	vector<int, Allocator<int>> my_vec(my_alloc);
+	my_vec.reserve(2); //We do not want vector to resize, because it would cause an error.
+	my_vec.push_back(15); my_vec.push_back(9);
+	for(auto iterator = my_vec.begin(); iterator != my_vec.end(); ++iterator)
+		std::cout << "vector_element: " << *iterator << endl; */
 
 
 
 	clock_t start = clock();
-	//Performance_Test_Default_New_2();
-	Performance_Test_Pool_2();
+	//Performance_Test_Default_New();
+	//Performance_Test_Pool();
 
     double duration = ( clock() - start ) / (double) CLOCKS_PER_SEC; std::cout << fixed << std::endl << std::endl << "Time: " << duration << std::endl;
     return 0;
