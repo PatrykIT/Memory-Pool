@@ -56,7 +56,7 @@ void Performance_Test_Pool()
 	int size = 240000, size_2 = size / 2;
 
 	int *tab_of_ints[size]; char *tab_of_chars[size]; 	double *tab_of_doubles[size];
-	for (int i = 0; i < size_2; ++i)
+	for (int i = 0; i < size_2; i++)
 	{
 		tab_of_ints[i] = memory_pool::MyMemoryPool::my_new<int>();
 	}
