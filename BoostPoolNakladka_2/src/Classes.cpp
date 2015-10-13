@@ -17,7 +17,7 @@ namespace memory_pool
 
 
 	MyMemoryPool::MyMemoryPool(size_t max_size, size_t blocks_number) : boost::pool<>(max_size, blocks_number, 0)
-	{	};
+	{};
 
 	void* MyMemoryPool::allocate(uintptr_t* place)
 	{
