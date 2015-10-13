@@ -13,7 +13,7 @@ namespace memory_pool
 	private:
 		unsigned int chuncks_allocated_ = 0;
 
-		void* allocate(uintptr_t* place);
+		void* allocate(uintptr_t *place);
 		void deallocate(void *my_info ,void *to_erase);
 		static void sort_pools();
 		static std::vector <boost::shared_ptr<MyMemoryPool>>::iterator Pick_Pool(const size_t n_bytes);
