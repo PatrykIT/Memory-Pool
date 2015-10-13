@@ -89,7 +89,7 @@ int main(int argc, char** argv)
 	memory_pool::MyMemoryPool::Register_Pools({ {65, 31}, {60, 83} });
 	Test_0();
 
-	/* //Example of Allocator usage.
+	/*//Example of Allocator usage.
 	Allocator<int> my_alloc;
 	vector<int, Allocator<int>> my_vec(my_alloc);
 	my_vec.reserve(2); //We do not want vector to resize, because it would cause an error.
