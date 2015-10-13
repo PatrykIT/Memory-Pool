@@ -1,10 +1,3 @@
-/*
- * Tests.h
- *
- *  Created on: Aug 10, 2015
- *      Author: patrykit
- */
-
 #ifndef TESTS_H_
 #define TESTS_H_
 
